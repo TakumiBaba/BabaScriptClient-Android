@@ -11,6 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 
+import org.babascript.android.R;
+import org.babascript.android.client.Linda;
+import org.babascript.android.client.WebSocket;
+
 public class MainActivity extends ActionBarActivity {
 
     @Override
@@ -23,6 +27,9 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+//        WebSocket webSocket = new WebSocket("ws://linda.masuilab.org:10010");
+//        webSocket.connect();
+        Linda linda = new Linda("ws://linda.masuilab.org:10010");
     }
 
 

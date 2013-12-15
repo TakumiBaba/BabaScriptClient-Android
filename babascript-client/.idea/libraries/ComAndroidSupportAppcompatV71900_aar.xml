@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="ComAndroidSupportAppcompatV71900.aar">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/BabaScriptClient/build/exploded-bundles/ComAndroidSupportAppcompatV71900.aar/classes.jar!/" />
+      <root url="jar://$PROJECT_DIR$/babascriptclient/build/exploded-bundles/ComAndroidSupportAppcompatV71900.aar/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
