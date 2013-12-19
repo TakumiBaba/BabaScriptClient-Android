@@ -1,5 +1,7 @@
 package org.babascript.android.client;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,27 +17,27 @@ public class Linda {
         callback = new Callback() {
             @Override
             public void connect(JSONObject json) {
-
+                Log.d("linda-connect", json.toString());
             }
 
             @Override
             public void write(JSONObject json) {
-
+                Log.d("linda-write", json.toString());
             }
 
             @Override
             public void read(JSONObject json) {
-
+                Log.d("linda-read", json.toString());
             }
 
             @Override
             public void take(JSONObject json) {
-
+                Log.d("linda-take", json.toString());
             }
 
             @Override
             public void watch(JSONObject json) {
-
+                Log.d("linda-watch", json.toString());
             }
         };
         io.connect();

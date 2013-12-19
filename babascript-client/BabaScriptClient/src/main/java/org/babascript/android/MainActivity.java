@@ -1,21 +1,29 @@
 package org.babascript.android;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 
-import org.babascript.android.R;
-import org.babascript.android.client.Linda;
-import org.babascript.android.client.WebSocket;
+import org.babascript.android.client.Client;
+import org.babascript.android.client.Routing;
+import org.babascript.android.client.TupleSpace;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements OnFragmentInteractionListener{
+
+    Client client = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +35,39 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-//        WebSocket webSocket = new WebSocket("ws://linda.masuilab.org:10010");
-//        webSocket.connect();
-        Linda linda = new Linda("ws://linda.masuilab.org:10010");
+        client = new Client(getApplicationContext(), new Routing(){
+            @Override
+            public void callback(JSONArray tuple){
+                String format = null;
+                Fragment fragment = null;
+                try {
+                    format = tuple.getJSONObject(3).getString("format").toLowerCase();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(format.equals("bool") || format.equals("boolean")){
+                    fragment = (BooleanViewFragment) BooleanViewFragment.newInstance(tuple);
+                }else if(format.equals("string")){
+                    fragment = (StringViewFragment) StringViewFragment.newInstance(tuple);
+                }else if(format.equals("int") || format.equals("number")){
+                    fragment = (IntViewFragment) IntViewFragment.newInstance(tuple);
+                }else if(format.equals("list")){
+                    fragment = (ListViewFragment) ListViewFragment.newInstance(tuple);
+                }else{
+                    fragment = (BooleanViewFragment) BooleanViewFragment.newInstance(tuple);
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, fragment)
+                        .setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .commit();
+            };
+        });
     }
+
+    public void onReturnValueClicked(Object v){
+        Log.d("return valie", v.toString());
+    }
+
 
 
     @Override
@@ -51,6 +88,15 @@ public class MainActivity extends ActionBarActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(Object value) {
+        client.returnValue(value, new JSONObject());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new PlaceholderFragment())
+                .setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
     }
 
     /**

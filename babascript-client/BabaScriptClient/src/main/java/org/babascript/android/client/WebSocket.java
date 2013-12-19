@@ -20,9 +20,13 @@ public class WebSocket extends WebSocketClient {
 
     private Linda linda;
     private String session;
+    private JSONObject callbackOnList;
+    private JSONObject callbackOnceList;
 
     public WebSocket(String url){
         super(URI.create(url), new Draft_17());
+        callbackOnList = new JSONObject();
+        callbackOnceList = new JSONObject();
     }
 
     public void push(String type, JSONArray data){
@@ -34,6 +38,7 @@ public class WebSocket extends WebSocketClient {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("push", json.toString());
         this.send(json.toString());
     }
 
@@ -44,6 +49,7 @@ public class WebSocket extends WebSocketClient {
 
     @Override
     public void onMessage(String s) {
+        Log.d("websocket", "onmessage: "+s);
         JSONObject json = null;
         String type = "";
         try{
@@ -54,21 +60,15 @@ public class WebSocket extends WebSocketClient {
         }
         if(type.equals("__session_id")){
             try{
-                session = json.getString("data");
+                session = json.getString("data").toString();
             }catch (JSONException e){
                 e.printStackTrace();
             }
-            linda.callback.connect(json);
-        }else if(type.matches("__linda_write_callback.*")){
-            linda.callback.write(json);
-        }else if(type.matches("__linda_watch_callback.*")){
-            linda.callback.watch(json);
-        }else if(type.matches("__linda_read_callback.*")){
-            linda.callback.read(json);
-        }else if(type.matches("__linda_take_callback.*")){
-            linda.callback.take(json);
+            this.emit("connect", new JSONObject());
+        }else{
+            this.emit(type, json);
         }
-        Log.d("websocket", "onmessge: "+s);
+
     }
 
     @Override
@@ -95,5 +95,39 @@ public class WebSocket extends WebSocketClient {
         Timer timer = new Timer("reconnect");
         timer.schedule(task, 10000);
 
+    }
+
+    public void on(String type, TupleSpaceCallback callback){
+        Log.d("websocket", "on:"+type);
+        try {
+            callbackOnList.put(type, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void once(String type, TupleSpaceCallback callback){
+        Log.d("websocket", "once:"+type);
+        try {
+            callbackOnceList.put(type, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void emit(String type, JSONObject options){
+        Log.d("websocket", "emit:" + options.toString());
+        TupleSpaceCallback tsc = null;
+        try {
+            tsc = (TupleSpaceCallback) callbackOnceList.get(type);
+            callbackOnceList.remove(type);
+        } catch (JSONException e) {
+            try{
+                tsc = (TupleSpaceCallback) callbackOnList.get(type);
+            }catch (JSONException ee){
+                return;
+            }
+        }
+        tsc.callback(options);
     }
 }
