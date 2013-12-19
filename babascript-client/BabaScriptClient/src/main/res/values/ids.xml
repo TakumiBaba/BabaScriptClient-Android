@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="boolean_false" type="id"/>
+    <item name="boolean_true" type="id"/>
+    <item name="wait_message" type="id"/>
+</resources>
