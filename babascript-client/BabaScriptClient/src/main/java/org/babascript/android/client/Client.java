@@ -40,6 +40,9 @@ public class Client{
             public Object callback(JSONObject options) {
                 waitNext();
                 waitAliveCheck();
+                waitUnicast();
+                waitBroadcast();
+                waitCancel();
                 return null;
             }
         });
@@ -153,7 +156,33 @@ public class Client{
     }
 
     public void waitCancel(){
-
+        JSONArray tuple = new JSONArray();
+        tuple.put("babascript"); tuple.put("cancel");
+        group.watch(tuple, new TupleSpaceCallback() {
+            @Override
+            public Object callback(JSONObject options) {
+                JSONArray tuple = null;
+                String cid = null;
+                try {
+                    tuple = options.getJSONObject("data").getJSONArray("tuple");
+                    cid = tuple.getString(2);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                JSONArray cancelTask = null;
+                try {
+                    for(int i=0;i<tasks.size();i++){
+                        if(tasks.get(i).getJSONObject(3).getString("cid").equals(cid)){
+                            tasks.remove(i);
+                            if(i == 0)routing.callback(null);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
     public void waitAliveCheck(){

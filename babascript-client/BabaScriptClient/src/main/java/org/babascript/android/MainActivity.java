@@ -40,12 +40,18 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
             public void callback(JSONArray tuple){
                 String format = null;
                 Fragment fragment = null;
-                try {
-                    format = tuple.getJSONObject(3).getString("format").toLowerCase();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if(tuple == null){
+                    format = "index";
+                }else{
+                    try {
+                        format = tuple.getJSONObject(3).getString("format").toLowerCase();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-                if(format.equals("bool") || format.equals("boolean")){
+                if(format.equals("index") || format.equals("")){
+                    fragment = new PlaceholderFragment();
+                }else if(format.equals("bool") || format.equals("boolean")){
                     fragment = (BooleanViewFragment) BooleanViewFragment.newInstance(tuple);
                 }else if(format.equals("string")){
                     fragment = (StringViewFragment) StringViewFragment.newInstance(tuple);
@@ -74,7 +80,8 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
     public boolean onCreateOptionsMenu(Menu menu) {
         
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        getMenuInflater().inflate(R.menu.);
         return true;
     }
 
